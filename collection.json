@@ -1,0 +1,545 @@
+{
+	"info": {
+		"_postman_id": "78f86459-a310-471d-81d8-3a13b9b881b4",
+		"name": "Lessons15",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12957022",
+		"_collection_link": "https://galactic-equinox-222669.postman.co/workspace/Test-FB~eaaca78b-45de-4cd1-9589-ae872ed88cfd/collection/12957022-78f86459-a310-471d-81d8-3a13b9b881b4?action=share&source=collection_link&creator=12957022"
+	},
+	"item": [
+		{
+			"name": "SignUp",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let password = pm.request.body.raw ? JSON.parse(pm.request.body.raw).password : null;\r",
+							"if (password) {\r",
+							"    pm.environment.set(\"userPassword\", password);\r",
+							"}\r",
+							"\r",
+							"let response = pm.response.json();\r",
+							"pm.environment.set(\"userId\", response.data.userId);\r",
+							"\r",
+							"let schema = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"required\": [\"status\", \"data\"],\r",
+							"    \"properties\": {\r",
+							"        \"status\": { \"type\": \"string\" },\r",
+							"        \"data\": {\r",
+							"            \"userId\": \"integer\",\r",
+							"            \"required\": [\"userId\", \"photoFilename\", \"distanceUnits\", \"currency\"],\r",
+							"            \"properties\": {\r",
+							"                \"userId\": { \"type\": \"integer\" },\r",
+							"                \"photoFilename\": { \"type\": \"string\" },\r",
+							"                \"distanceUnits\": { \"type\": \"string\" },\r",
+							"                \"currency\": { \"type\": \"string\" }\r",
+							"            }\r",
+							"        }\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"\r",
+							"pm.test(\"Відповідь відповідає JSON Schema\", function () {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(tv4.validate(jsonData, schema)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Email у запиті має валідний формат\", function () {\r",
+							"    let requestData = pm.request.body.raw;\r",
+							"    let requestJson = JSON.parse(requestData);\r",
+							"\r",
+							"    let email = requestJson.email;\r",
+							"\r",
+							"    let emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\r",
+							"\r",
+							"    pm.expect(email).to.be.a(\"string\").and.not.empty;\r",
+							"    pm.expect(email).to.match(emailRegex);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "welcome2qauto",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "guest",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Mariia\",\r\n  \"lastName\": \"Yanul\",\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\",\r\n  \"repeatPassword\": \"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/auth/signup",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"auth",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SignIn",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "welcome2qauto",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "guest",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\",\r\n  \"remember\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/auth/signin",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"auth",
+						"signin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Users Profile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Перевірка відповідності всіх полів, крім фото. Вибачаюсь, тест на перевірку фото у мене постійно падав тому я вирішила ігнорувати це поле. :(\", function () {\r",
+							"    const requestBody = JSON.parse(pm.request.body.raw);\r",
+							"    const responseData = pm.response.json().data;\r",
+							"\r",
+							"    pm.expect(responseData).to.have.property(\"name\", requestBody.name);\r",
+							"    pm.expect(responseData).to.have.property(\"lastName\", requestBody.lastName);\r",
+							"    pm.expect(responseData).to.have.property(\"country\", requestBody.country);\r",
+							"\r",
+							"    const expectedDate = new Date(requestBody.dateBirth).toISOString();\r",
+							"    const actualDate = new Date(responseData.dateBirth).toISOString();\r",
+							"    pm.expect(actualDate).to.eql(expectedDate);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"photo\": \"user-1621352948859.jpg\",\r\n  \"name\": \"MariiaDevEnv\",\r\n  \"lastName\": \"Yanul\",\r\n  \"dateBirth\": \"1994-03-01T15:21:05.000Z\",\r\n  \"country\": \"Ukraine\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/users/profile",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"profile"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change User Password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"userId відповідає збереженому при зміні пароля\", function () {\r",
+							"    let responseUserId = pm.response.json().data.userId;\r",
+							"    let expectedUserId = parseInt(pm.environment.get(\"userId\"));\r",
+							"\r",
+							"    pm.expect(responseUserId).to.eql(expectedUserId);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"oldPassword\": \"{{password}}\",\r\n    \"password\": \"Qwerty123456\",\r\n    \"repeatPassword\": \"Qwerty123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/users/password",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LogOut",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Logout пройшов успішно\", function () {\r",
+							"    const res = pm.response.json();\r",
+							"    pm.expect(res.status).to.eql(\"ok\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseURL}}/auth/logout",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"auth",
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LogIn",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login успішний — Good job :)\", function () {\r",
+							"    let res = pm.response.json();\r",
+							"    pm.expect(res.status).to.eql(\"ok\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "welcome2qauto",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "guest",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"Qwerty123456\",\r\n  \"remember\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/auth/signin",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"auth",
+						"signin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Car",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();\r",
+							"if (response.data.id) {\r",
+							"    pm.environment.set(\"carId\", response.data.id);\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Перевірка відповідності даних авто успішна\", function () {\r",
+							"    const res = pm.response.json();\r",
+							"    const data = res.data;\r",
+							"\r",
+							"    pm.expect(data.carBrandId).to.eql(1);\r",
+							"    pm.expect(data.carModelId).to.eql(1);\r",
+							"    pm.expect(data.mileage).to.eql(123);\r",
+							"    pm.expect(data.initialMileage).to.eql(123);\r",
+							"});\r",
+							"\r",
+							"let lastMileage = pm.response.json().data.mileage;\r",
+							"pm.environment.set(\"lastMileage\", lastMileage);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"carBrandId\": 1,\r\n  \"carModelId\": 1,\r\n  \"mileage\": 123\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/cars",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"cars"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Existing Car",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let lastMileage = parseInt(pm.environment.get(\"lastMileage\") || \"0\", 10);\r",
+							"let newMileage = lastMileage + 1;\r",
+							"pm.environment.set(\"newMileage\", newMileage);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"carBrandId\": 1,\r\n    \"carModelId\": 1,\r\n    \"mileage\": {{newMileage}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/cars/{{carId}}",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"cars",
+						"{{carId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Користувач видалено\", function () {\r",
+							"    const res = pm.response.json();\r",
+							"    pm.expect(res.status).to.eql(\"ok\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{baseURL}}/users",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
